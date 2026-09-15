@@ -23,6 +23,7 @@ export default function DashboardPage() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -139,6 +140,22 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleLogout() {
+    setLoggingOut(true);
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error(error);
+      setError("حدث خطأ أثناء تسجيل الخروج.");
+      setLoggingOut(false);
+      return;
+    }
+
+    router.replace("/login");
+    router.refresh();
+  }
+
   return (
     <main
       dir="rtl"
@@ -146,7 +163,8 @@ export default function DashboardPage() {
     >
       {/* الهيدر */}
       <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
+
           <div>
             <h1 className="text-2xl font-bold text-slate-800">
               📦 إدارة مخزون المستودع
@@ -157,8 +175,21 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="hidden rounded-xl bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 sm:block">
-            👤 المدير
+          <div className="flex items-center gap-2">
+
+            <div className="hidden rounded-xl bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 sm:block">
+              👤 المدير
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
+            >
+              {loggingOut ? "جاري الخروج..." : "🚪 تسجيل الخروج"}
+            </button>
+
           </div>
         </div>
       </header>
@@ -303,6 +334,7 @@ export default function DashboardPage() {
             {/* إدخال مخزون */}
             <button
               type="button"
+              onClick={() => router.push("/stock-in")}
               className="rounded-2xl bg-white p-5 text-right shadow-sm transition hover:bg-slate-50"
             >
               <div className="text-3xl">
@@ -321,6 +353,7 @@ export default function DashboardPage() {
             {/* إخراج مخزون */}
             <button
               type="button"
+              onClick={() => router.push("/stock-out")}
               className="rounded-2xl bg-white p-5 text-right shadow-sm transition hover:bg-slate-50"
             >
               <div className="text-3xl">
@@ -339,6 +372,7 @@ export default function DashboardPage() {
             {/* البحث */}
             <button
               type="button"
+              onClick={() => router.push("/products")}
               className="rounded-2xl bg-white p-5 text-right shadow-sm transition hover:bg-slate-50"
             >
               <div className="text-3xl">

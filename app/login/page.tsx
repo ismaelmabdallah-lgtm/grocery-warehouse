@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   const [email, setEmail] = useState("");
@@ -30,7 +31,16 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // الصفحة التي كان المستخدم يريد الوصول إليها
+    const next = searchParams.get("next");
+
+    // نسمح فقط بمسارات داخل الموقع
+    const destination =
+      next && next.startsWith("/") && !next.startsWith("//")
+        ? next
+        : "/dashboard";
+
+    router.replace(destination);
     router.refresh();
   }
 
@@ -42,7 +52,6 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-3xl shadow-xl p-7 sm:p-9">
 
-          {/* الشعار والعنوان */}
           <div className="text-center mb-8">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600 text-4xl shadow-lg">
               📦
@@ -57,7 +66,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* النموذج */}
           <form onSubmit={handleLogin} className="space-y-5">
 
             <div>
@@ -100,14 +108,12 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* رسالة الخطأ */}
             {error && (
               <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
 
-            {/* زر الدخول */}
             <button
               type="submit"
               disabled={loading}
